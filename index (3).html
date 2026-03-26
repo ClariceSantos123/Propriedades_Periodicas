@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propriedades Periódicas Interativas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 Jornada pelas Propriedades Periódicas</h1>
+            <p>Descubra as tendências da Tabela Periódica de forma interativa!</p>
+        </header>
+
+        <!-- Tela Principal: Seleção de Propriedade -->
+        <div id="menuScreen" class="screen active">
+            <div class="stats-panel">
+                <div class="stat-card">
+                    <span class="stat-icon">🏆</span>
+                    <div class="stat-info">
+                        <div class="stat-value" id="totalPoints">0</div>
+                        <div class="stat-label">Pontos Totais</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">⭐</span>
+                    <div class="stat-info">
+                        <div class="stat-value" id="totalStars">0/35</div>
+                        <div class="stat-label">Estrelas</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">🎯</span>
+                    <div class="stat-info">
+                        <div class="stat-value" id="totalChallenges">0/35</div>
+                        <div class="stat-label">Desafios</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="properties-grid">
+                <!-- Raio Atômico -->
+                <div class="property-card" data-property="raioAtomico">
+                    <div class="property-icon">📏</div>
+                    <h3>Raio Atômico</h3>
+                    <p>Tamanho dos átomos na tabela</p>
+                    <div class="property-progress">
+                        <span class="progress-stars">⭐ 0/5</span>
+                        <div class="progress-bar-mini">
+                            <div class="progress-fill-mini" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <button class="btn-property">Explorar →</button>
+                </div>
+
+                <!-- Eletronegatividade -->
+                <div class="property-card" data-property="eletronegatividade">
+                    <div class="property-icon">⚡</div>
+                    <h3>Eletronegatividade</h3>
+                    <p>Força para atrair elétrons</p>
+                    <div class="property-progress">
+                        <span class="progress-stars">⭐ 0/5</span>
+                        <div class="progress-bar-mini">
+                            <div class="progress-fill-mini" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <button class="btn-property">Explorar →</button>
+                </div>
+
+                <!-- Energia de Ionização -->
+                <div class="property-card" data-property="energiaIonizacao">
+                    <div class="property-icon">💥</div>
+                    <h3>Energia de Ionização</h3>
+                    <p>Energia para remover elétron</p>
+                    <div class="property-progress">
+                        <span class="progress-stars">⭐ 0/5</span>
+                        <div class="progress-bar-mini">
+                            <div class="progress-fill-mini" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <button class="btn-property">Explorar →</button>
+                </div>
+
+                <!-- Afinidade Eletrônica -->
+                <div class="property-card" data-property="afinidadeEletronica">
+                    <div class="property-icon">🔋</div>
+                    <h3>Afinidade Eletrônica</h3>
+                    <p>Tendência a ganhar elétron</p>
+                    <div class="property-progress">
+                        <span class="progress-stars">⭐ 0/5</span>
+                        <div class="progress-bar-mini">
+                            <div class="progress-fill-mini" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <button class="btn-property">Explorar →</button>
+                </div>
+
+                <!-- Caráter Metálico -->
+                <div class="property-card" data-property="caracterMetalico">
+                    <div class="property-icon">⚙️</div>
+                    <h3>Caráter Metálico</h3>
+                    <p>Comportamento como metal</p>
+                    <div class="property-progress">
+                        <span class="progress-stars">⭐ 0/5</span>
+                        <div class="progress-bar-mini">
+                            <div class="progress-fill-mini" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <button class="btn-property">Explorar →</button>
+                </div>
+
+                <!-- Reatividade -->
+                <div class="property-card" data-property="reatividade">
+                    <div class="property-icon">🧨</div>
+                    <h3>Reatividade</h3>
+                    <p>Facilidade de reagir</p>
+                    <div class="property-progress">
+                        <span class="progress-stars">⭐ 0/5</span>
+                        <div class="progress-bar-mini">
+                            <div class="progress-fill-mini" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <button class="btn-property">Explorar →</button>
+                </div>
+
+                <!-- Densidade -->
+                <div class="property-card" data-property="densidade">
+                    <div class="property-icon">⚖️</div>
+                    <h3>Densidade</h3>
+                    <p>Massa por volume</p>
+                    <div class="property-progress">
+                        <span class="progress-stars">⭐ 0/5</span>
+                        <div class="progress-bar-mini">
+                            <div class="progress-fill-mini" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <button class="btn-property">Explorar →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Exploração da Propriedade -->
+        <div id="exploreScreen" class="screen">
+            <div class="explore-header">
+                <button class="btn-back" id="btnBack">← Voltar</button>
+                <div class="explore-title">
+                    <h2 id="propertyTitle">Propriedade</h2>
+                    <p id="propertyDescription">Descrição</p>
+                </div>
+                <div class="explore-stats">
+                    <span class="stat-mini">🏆 <span id="propertyPoints">0</span></span>
+                    <span class="stat-mini">⭐ <span id="propertyStars">0/5</span></span>
+                </div>
+            </div>
+
+            <!-- Mapa de Calor da Tabela -->
+            <div class="heatmap-section">
+                <h3>📊 Mapa de Calor Interativo</h3>
+                <div class="heatmap-legend">
+                    <span class="legend-item"><span class="legend-color" style="background: #ff4444"></span> Maior</span>
+                    <span class="legend-item"><span class="legend-color" style="background: #ffaa00"></span> Médio</span>
+                    <span class="legend-item"><span class="legend-color" style="background: #4444ff"></span> Menor</span>
+                </div>
+                <div id="heatmapTable" class="heatmap-table"></div>
+            </div>
+
+            <!-- Desafios -->
+            <div class="challenges-section">
+                <h3>🎮 Desafios</h3>
+                <div class="challenges-grid" id="challengesGrid">
+                    <!-- Desafios gerados dinamicamente -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela de Desafio -->
+        <div id="challengeScreen" class="screen">
+            <div class="challenge-header">
+                <button class="btn-back" id="btnBackChallenge">← Voltar</button>
+                <div class="challenge-info">
+                    <h2 id="challengeTitle">Desafio</h2>
+                    <div class="challenge-stats">
+                        <span>❤️ <span id="lives">3</span></span>
+                        <span>🏆 <span id="challengeScore">0</span></span>
+                        <span>⏱️ <span id="challengeTimer">00:00</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="challenge-content" id="challengeContent">
+                <!-- Conteúdo dinâmico do desafio -->
+            </div>
+
+            <div class="challenge-feedback" id="challengeFeedback"></div>
+        </div>
+
+        <!-- Modal de Conquista -->
+        <div id="achievementModal" class="modal">
+            <div class="modal-content achievement-content">
+                <div class="achievement-animation">⭐</div>
+                <h2>Parabéns!</h2>
+                <p id="achievementText">Você conquistou uma estrela!</p>
+                <button class="btn-primary" id="btnCloseAchievement">Continuar</button>
+            </div>
+        </div>
+
+        <!-- Modal de Informação do Elemento -->
+        <div id="elementModal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" id="btnCloseElement">&times;</button>
+                <div id="elementInfo"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="propriedades-data.js"></script>
+    <script src="desafios.js"></script>
+    <script src="visualizacoes.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
