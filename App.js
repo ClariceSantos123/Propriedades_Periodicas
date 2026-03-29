@@ -124,24 +124,40 @@ function initPropertyCards() {
     const cards = document.querySelectorAll('.property-card');
     console.log(`🎴 Inicializando ${cards.length} cards de propriedades`);
     
-    cards.forEach(card => {
+    if (cards.length === 0) {
+        console.error('❌ NENHUM CARD ENCONTRADO! Verifique se o HTML tem elements com classe .property-card');
+        return;
+    }
+    
+    cards.forEach((card, index) => {
         const propName = card.dataset.property;
+        console.log(`  Card ${index + 1}: ${propName}`);
+        
+        if (!propName) {
+            console.error('❌ Card sem data-property:', card);
+            return;
+        }
+        
         const btn = card.querySelector('.btn-property');
         
         if (btn) {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                console.log(`🔬 Explorando propriedade: ${propName}`);
+                console.log(`🔬 BOTÃO CLICADO! Explorando propriedade: ${propName}`);
                 exploreProperty(propName);
             });
+        } else {
+            console.warn('⚠️ Botão não encontrado no card:', propName);
         }
         
         // Também permite clicar no card inteiro
         card.addEventListener('click', () => {
-            console.log(`🔬 Explorando propriedade: ${propName}`);
+            console.log(`🔬 CARD CLICADO! Explorando propriedade: ${propName}`);
             exploreProperty(propName);
         });
     });
+    
+    console.log('✅ Todos os cards inicializados!');
 }
 
 // ========================================
@@ -149,21 +165,41 @@ function initPropertyCards() {
 // ========================================
 
 function exploreProperty(propName) {
+    console.log('🎯 === EXPLORANDO PROPRIEDADE ===');
+    console.log('Nome da propriedade:', propName);
+    console.log('propriedadesInfo existe?', typeof propriedadesInfo !== 'undefined');
+    console.log('propriedadesInfo[propName] existe?', propriedadesInfo ? propriedadesInfo[propName] : 'propriedadesInfo não definido');
+    
+    if (!propriedadesInfo) {
+        console.error('❌ ERRO CRÍTICO: propriedadesInfo não está definido!');
+        console.error('Verifique se propriedades-data.js foi carregado corretamente');
+        alert('Erro: Dados não carregados. Verifique o console (F12)');
+        return;
+    }
+    
     if (!propriedadesInfo[propName]) {
         console.error('❌ Propriedade não encontrada:', propName);
+        console.error('Propriedades disponíveis:', Object.keys(propriedadesInfo));
+        alert(`Erro: Propriedade "${propName}" não encontrada!`);
         return;
     }
     
     appState.currentProperty = propName;
     const info = propriedadesInfo[propName];
     
-    console.log('🔍 Explorando:', info.title);
+    console.log('✅ Info da propriedade:', info.title);
     
     // Atualizar header
     const titleEl = document.getElementById('propertyTitle');
     const descEl = document.getElementById('propertyDescription');
     const pointsEl = document.getElementById('propertyPoints');
     const starsEl = document.getElementById('propertyStars');
+    
+    console.log('Elementos do DOM:');
+    console.log('  propertyTitle:', titleEl ? 'OK' : 'NÃO ENCONTRADO');
+    console.log('  propertyDescription:', descEl ? 'OK' : 'NÃO ENCONTRADO');
+    console.log('  propertyPoints:', pointsEl ? 'OK' : 'NÃO ENCONTRADO');
+    console.log('  propertyStars:', starsEl ? 'OK' : 'NÃO ENCONTRADO');
     
     if (titleEl) titleEl.textContent = `${info.icon} ${info.title}`;
     if (descEl) descEl.textContent = info.description;
@@ -172,14 +208,19 @@ function exploreProperty(propName) {
     if (pointsEl) pointsEl.textContent = progress.points;
     if (starsEl) starsEl.textContent = `${progress.stars}/5`;
     
+    console.log('📊 Criando mapa de calor...');
     // Criar mapa de calor
     createHeatmap(propName);
     
+    console.log('🎮 Criando lista de desafios...');
     // Criar lista de desafios
     createChallengesList(propName);
     
+    console.log('📺 Mostrando tela de exploração...');
     // Mostrar tela de exploração
     showScreen('exploreScreen');
+    
+    console.log('✅ === EXPLORAÇÃO COMPLETA ===');
 }
 
 // ========================================
