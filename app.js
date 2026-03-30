@@ -243,11 +243,19 @@ function createHeatmap(propName) {
     }
     
     // Calcular min/max para normalização
-    const values = Object.values(data).filter(v => v > 0);
+    // Filtrar valores válidos (números diferentes de 0 e não-nulos)
+    const values = Object.values(data).filter(v => typeof v === 'number' && !isNaN(v));
+    
+    if (values.length === 0) {
+        console.error('❌ Nenhum valor válido encontrado para:', propName);
+        heatmapDiv.innerHTML = '<p style="text-align:center; padding:20px;">Sem dados disponíveis</p>';
+        return;
+    }
+    
     const min = Math.min(...values);
     const max = Math.max(...values);
     
-    console.log(`📊 Criando mapa de calor: ${min} - ${max}`);
+    console.log(`📊 Criando mapa de calor: min=${min}, max=${max}`);
     
     // Estrutura simplificada da tabela periódica
     // 18 grupos x 7 períodos = 126 células
@@ -275,7 +283,14 @@ function createHeatmap(propName) {
             
             if (symbol && data[symbol] !== undefined) {
                 const value = data[symbol];
-                const normalized = (value - min) / (max - min);
+                
+                // Normalizar o valor (0 a 1)
+                let normalized;
+                if (min === max) {
+                    normalized = 0.5; // Todos iguais = meio termo
+                } else {
+                    normalized = (value - min) / (max - min);
+                }
                 
                 // Definir cor baseada no valor normalizado
                 const color = getHeatColor(normalized);
@@ -303,6 +318,8 @@ function createHeatmap(propName) {
             heatmapDiv.appendChild(cell);
         });
     });
+    
+    console.log('✅ Mapa de calor criado!');
 }
 
 function formatValue(value) {
@@ -490,22 +507,32 @@ function createComparisonQuestion() {
     const info = propriedadesInfo[propName];
     
     // Pegar 2 elementos aleatórios diferentes
-    const symbols = Object.keys(data).filter(s => data[s] > 0);
+    const symbols = Object.keys(data).filter(s => data[s] !== undefined && data[s] !== null);
     const elem1 = symbols[Math.floor(Math.random() * symbols.length)];
     let elem2 = symbols[Math.floor(Math.random() * symbols.length)];
     
-    // Garantir que são diferentes
+    // Garantir que são diferentes e têm valores diferentes
     let attempts = 0;
-    while (elem2 === elem1 && attempts < 10) {
+    while ((elem2 === elem1 || data[elem1] === data[elem2]) && attempts < 20) {
         elem2 = symbols[Math.floor(Math.random() * symbols.length)];
         attempts++;
+    }
+    
+    // Pergunta especial para afinidade eletrônica
+    let questionText = `Qual elemento tem MAIOR ${info.title}?`;
+    let hint = '';
+    
+    if (propName === 'afinidadeEletronica') {
+        questionText = `Qual elemento tem MAIOR Afinidade Eletrônica?`;
+        hint = '<p style="color: #666; font-size: 0.9rem; margin-top: 10px;">💡 Dica: Valores mais NEGATIVOS = MAIOR afinidade!</p>';
     }
     
     content.innerHTML = `
         <div class="comparison-challenge">
             <h3 class="comparison-question">
-                Qual elemento tem MAIOR ${info.title}?
+                ${questionText}
             </h3>
+            ${hint}
             <p style="text-align: center; color: #666; margin-bottom: 30px;">
                 Questão ${appState.currentQuestion + 1} de ${appState.currentChallenge.totalQuestions}
             </p>
@@ -560,7 +587,18 @@ function checkAnswer(selected, elem1, elem2) {
     
     const value1 = data[elem1];
     const value2 = data[elem2];
-    const correct = value1 > value2 ? elem1 : elem2;
+    
+    // Para afinidade eletrônica, valores mais NEGATIVOS são MAIORES
+    // (liberam mais energia, portanto são mais favoráveis)
+    let correct;
+    if (propName === 'afinidadeEletronica') {
+        // Mais negativo = maior afinidade
+        correct = value1 < value2 ? elem1 : elem2;
+    } else {
+        // Para outras propriedades, valores maiores são maiores
+        correct = value1 > value2 ? elem1 : elem2;
+    }
+    
     const isCorrect = selected === correct;
     
     const feedbackDiv = document.getElementById('challengeFeedback');
@@ -580,6 +618,14 @@ function checkAnswer(selected, elem1, elem2) {
     
     const unit = info.unidade || '';
     
+    // Explicação especial para afinidade eletrônica
+    let explanation = info.tendenciaPeriodo;
+    if (propName === 'afinidadeEletronica') {
+        explanation = `📌 Atenção: Valores mais NEGATIVOS = MAIOR afinidade eletrônica!<br>
+                       Quanto mais negativo, mais energia é liberada ao ganhar elétron.<br><br>
+                       ${info.tendenciaPeriodo}`;
+    }
+    
     feedbackDiv.innerHTML = `
         <div class="feedback-icon">${isCorrect ? '✅' : '❌'}</div>
         <div class="feedback-message">
@@ -590,9 +636,13 @@ function checkAnswer(selected, elem1, elem2) {
             ${elem1}: ${value1}${unit}<br>
             ${elem2}: ${value2}${unit}<br>
             <br>
-            <strong>Correto:</strong> ${correct} (${Math.max(value1, value2)}${unit})<br>
+            <strong>Correto:</strong> ${correct}<br>
+            ${propName === 'afinidadeEletronica' ? 
+              `<strong>Por quê?</strong> ${correct} tem valor mais negativo (${Math.min(value1, value2)}${unit})` :
+              `<strong>Por quê?</strong> ${correct} tem valor maior (${Math.max(value1, value2)}${unit})`
+            }<br>
             <br>
-            ${info.tendenciaPeriodo}
+            ${explanation}
         </div>
         <button class="btn-next" onclick="nextQuestion()">
             ${appState.lives <= 0 ? 'Ver Resultado' : 
