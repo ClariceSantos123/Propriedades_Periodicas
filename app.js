@@ -1,7 +1,11 @@
 // ========================================
 // APP.JS - SISTEMA PRINCIPAL
 // Propriedades Periódicas Interativas
+// VERSÃO: 2.0 - BUG MÚLTIPLOS CLIQUES CORRIGIDO ✅
 // ========================================
+
+console.log('%c🔬 TABELA PERIÓDICA v2.0 - BUG CORRIGIDO! ✅', 'background: #4CAF50; color: white; padding: 10px; font-size: 16px; font-weight: bold;');
+console.log('%c⚠️ SE VOCÊ VÊ ESTA MENSAGEM, O ARQUIVO ESTÁ CORRETO!', 'background: #FF9800; color: white; padding: 5px; font-size: 14px;');
 
 // Estado Global da Aplicação
 const appState = {
@@ -29,6 +33,25 @@ const appState = {
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Sistema iniciando...');
+    
+    // INDICADOR VISUAL DE VERSÃO (no canto da tela)
+    const versionBadge = document.createElement('div');
+    versionBadge.innerHTML = '✅ v2.0 - Bug Corrigido';
+    versionBadge.style.cssText = `
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        background: #4CAF50;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        z-index: 9999;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    `;
+    document.body.appendChild(versionBadge);
+    
     loadProgress();
     initPropertyCards();
     initEventListeners();
@@ -463,7 +486,8 @@ function startChallenge(propName, level) {
         property: propName, 
         level,
         correctAnswers: 0,
-        totalQuestions: 5
+        totalQuestions: 5,
+        questionAnswered: false  // FLAG: prevenir múltiplos cliques
     };
     appState.lives = 3;
     appState.score = 0;
@@ -558,10 +582,19 @@ function createComparisonQuestion() {
         feedbackDiv.classList.remove('show');
     }
     
+    // FLAG para prevenir múltiplos cliques
+    let answerSubmitted = false;
+    
     // Event listeners
     let selected = null;
     document.querySelectorAll('.element-option').forEach(option => {
         option.addEventListener('click', () => {
+            // PROTEÇÃO: Não permitir cliques após responder
+            if (answerSubmitted) {
+                console.log('⛔ Resposta já foi enviada! Ignorando clique.');
+                return;
+            }
+            
             document.querySelectorAll('.element-option').forEach(o => 
                 o.classList.remove('selected')
             );
@@ -572,6 +605,30 @@ function createComparisonQuestion() {
     });
     
     document.getElementById('btnSubmitAnswer').addEventListener('click', () => {
+        // PROTEÇÃO: Prevenir múltiplos cliques no botão
+        if (answerSubmitted) {
+            console.log('⛔ Resposta já foi enviada! Ignorando clique no botão.');
+            return;
+        }
+        
+        // Marcar como respondida IMEDIATAMENTE
+        answerSubmitted = true;
+        
+        // Desabilitar botão e opções visualmente
+        const submitBtn = document.getElementById('btnSubmitAnswer');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+        }
+        
+        // Desabilitar cliques nas opções
+        document.querySelectorAll('.element-option').forEach(option => {
+            option.style.pointerEvents = 'none';
+            option.style.opacity = '0.7';
+        });
+        
+        // Processar resposta
         checkAnswer(selected, elem1, elem2);
     });
 }
@@ -581,6 +638,15 @@ function createComparisonQuestion() {
 // ========================================
 
 function checkAnswer(selected, elem1, elem2) {
+    // PROTEÇÃO: Verificar se já foi processada esta questão
+    if (appState.currentChallenge.questionAnswered) {
+        console.log('⛔ Esta questão já foi respondida! Ignorando.');
+        return;
+    }
+    
+    // Marcar como respondida IMEDIATAMENTE
+    appState.currentChallenge.questionAnswered = true;
+    
     const propName = appState.currentChallenge.property;
     const data = propriedadesData[propName];
     const info = propriedadesInfo[propName];
@@ -610,8 +676,10 @@ function checkAnswer(selected, elem1, elem2) {
     if (isCorrect) {
         appState.score += 100;
         appState.currentChallenge.correctAnswers++;
+        console.log(`✅ Acertou! Pontos: ${appState.score}, Acertos: ${appState.currentChallenge.correctAnswers}`);
     } else {
         appState.lives--;
+        console.log(`❌ Errou! Vidas restantes: ${appState.lives}`);
     }
     
     updateChallengeStats();
@@ -658,6 +726,11 @@ function checkAnswer(selected, elem1, elem2) {
 
 function nextQuestion() {
     appState.currentQuestion++;
+    
+    // RESETAR flag de questão respondida
+    appState.currentChallenge.questionAnswered = false;
+    
+    console.log(`📝 Próxima questão: ${appState.currentQuestion + 1}/${appState.currentChallenge.totalQuestions}`);
     
     // Verificar se acabou
     if (appState.currentQuestion >= appState.currentChallenge.totalQuestions || 
